@@ -1,0 +1,24 @@
+#!/bin/bash
+# check the wearout of Crucial SSDs
+echo '<<<disk_wearout:sep(59)>>>'
+
+# for every mounted SDD
+for D in /dev/sd?; do
+
+	# check if the "percent_lifetime_remain" option exists in the smartctl output
+	line=$(smartctl -a "$D" | grep "Percent_Lifetime_Remain")
+	if ! test -z "$line"; then
+
+		# get wearout %
+		wearout=$(smartctl -a "$D" | grep "Percent_Lifetime_Remain" | awk '{print $10}')
+
+		# get device model
+		model=$(smartctl -a "$D" | grep "Device Model:" | awk '{print $3}')
+
+		# get serial number
+		serial=$(smartctl -a "$D" | grep "Serial Number:" | awk '{print $3}')
+	fi
+
+	# send the raw data to checkmk
+	echo "$D;$wearout;$model;$serial"
+done

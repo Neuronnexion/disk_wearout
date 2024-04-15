@@ -1,0 +1,12 @@
+{'author': 'Neuronnexion - Elliot Vantorre',
+ 'description': 'Check the wearout of Crucial SSDs',
+ 'download_url': 'https://github.com/Neuronnexion/disk_wearout/',
+ 'files': {'agent_based': ['disk_wearout.py'],
+           'agents': ['plugins/disk_wearout'],
+           'web': ['plugins/wato/disk_wearout_parameters.py']},
+ 'name': 'disk_wearout',
+ 'title': 'Crucial disk wearout',
+ 'version': '1.0.0',
+ 'version.min_required': '2.2.0p23',
+ 'version.packaged': '2.2.0p23',
+ 'version.usable_until': None}
