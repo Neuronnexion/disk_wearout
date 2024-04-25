@@ -74,6 +74,12 @@ def check_disk_wearout(item, params, section):
         boundaries=(0.0, None),
     )
 
+    yield Metric(
+        name="RAIN_events",
+        value=rain,
+        boundaries=(0.0, None),
+    )
+
 # register agent
 register.agent_section(
     name = "disk_wearout",
