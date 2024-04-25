@@ -3,14 +3,14 @@
 # Exemple of raw data from agent
 #
 # <<<disk_wearout:sep(59)>>>
-# /dev/sda;20,CT1000MX500SSD1,2152E5F6FEB6
-# /dev/sdb;19,CT1000MX500SSD1,2152E5F6D6E6
-# /dev/sdc;21,CT1000MX500SSD1,2152E5F6E85B
-# /dev/sdd;22,CT1000MX500SSD1,2152E5F6C8B0
-# /dev/sde;99,CT1000MX500SSD1,2152E5F6D1C8
-# /dev/sdf;95,CT1000MX500SSD1,2210E616E034
-# /dev/sdg;20,CT1000MX500SSD1,2152E5F6C89A
-# /dev/sdh;28,CT1000MX500SSD1,2152E5F6C89D
+# /dev/sda;CT1000MX500SSD1;2152E5F6FEB6;22;56;0
+# /dev/sdb;CT1000MX500SSD1;2152E5F6D6E6;22;48;0
+# /dev/sdc;CT1000MX500SSD1;2152E5F6E85B;23;51;0
+# /dev/sdd;CT1000MX500SSD1;2152E5F6C8B0;25;33;0
+# /dev/sde;CT1000MX500SSD1;2248E68C7DA4;2;49;0
+# /dev/sdf;CT1000MX500SSD1;2210E616E034;105;63;0
+# /dev/sdg;CT1000MX500SSD1;2152E5F6C89A;23;59;0
+# /dev/sdh;CT1000MX500SSD1;2152E5F6C89D;31;54;0
 
 from .agent_based_api.v1 import check_levels, Metric, register, Result, Service, State
 
@@ -18,9 +18,11 @@ from .agent_based_api.v1 import check_levels, Metric, register, Result, Service,
 def parse_disk_wearout(string_table):
     parsed = {}
     column_names=[
-        "wearout",
         "model",
         "serial",
+        "wearout",
+        "unused",
+        "rain",
     ]
     for line in string_table:
         parsed [line[0]] = {}
@@ -44,27 +46,33 @@ def check_disk_wearout(item, params, section):
     model=percent_wear['model']
     serial=percent_wear['serial']
 
+    unused=int(percent_wear['unused'])
+    rain=int(percent_wear['rain'])
+
     # get parameters
     crit_wearout=int(params["disk_wearout_upper"][1])
     warn_wearout=int(params["disk_wearout_upper"][0])
 
     if int_wearout >= crit_wearout:
-        yield Result(state=State.CRIT, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%")
+        yield Result(state=State.CRIT, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%. Available spare blocks: {unused}. Number of RAIN events: {rain}")
     elif int_wearout >= warn_wearout:
-        yield Result(state=State.WARN, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%")
+        yield Result(state=State.WARN, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%. Available spare blocks: {unused}. Number of RAIN events: {rain}")
     else:
-        yield Result(state=State.OK, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%")
+        yield Result(state=State.OK, summary=f"Wearout of disk {model}-{serial} at {int_wearout}%. Available spare blocks: {unused}. Number of RAIN events: {rain}")
 
     # metrics
-    yield from check_levels(
-        int_wearout,
-        levels_upper=(float(warn_wearout),float(crit_wearout)),
-        label="Disk wearout",
-        boundaries=(0.00,100.00),
-        notice_only=True,
+
+    yield Metric(
+        name="Disk_wearout",
+        value=int_wearout,
+        boundaries=(0.0, 100.0)
     )
 
-    yield Metric(name="Wearout", value=int_wearout)
+    yield Metric(
+        name="Available_spare_blocks",
+        value=unused,
+        boundaries=(0.0, None),
+    )
 
 # register agent
 register.agent_section(
