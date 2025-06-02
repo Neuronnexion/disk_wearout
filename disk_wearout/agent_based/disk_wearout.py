@@ -12,7 +12,7 @@
 # /dev/sdg;CT1000MX500SSD1;2152E5F6C89A;23;59;0
 # /dev/sdh;CT1000MX500SSD1;2152E5F6C89D;31;54;0
 
-from .agent_based_api.v1 import check_levels, Metric, register, Result, Service, State
+from .agent_based_api.v2 import check_levels, Metric, register, Result, Service, State
 
 # parse raw data from agent on host into a dict
 def parse_disk_wearout(string_table):
@@ -81,13 +81,13 @@ def check_disk_wearout(item, params, section):
     )
 
 # register agent
-register.agent_section(
+agent_section_disk_wearout = AgentSection(
     name = "disk_wearout",
     parse_function = parse_disk_wearout,
 )
 
 # register check for multiple services (%s is the header of a dict column)
-register.check_plugin(
+check_plugin_disk_wearout = CheckPlugin(
     name = "disk_wearout",
     sections = ["disk_wearout"],
     service_name = "Disk wearout %s",
