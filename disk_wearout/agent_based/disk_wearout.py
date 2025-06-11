@@ -12,7 +12,7 @@
 # /dev/sdg;CT1000MX500SSD1;2152E5F6C89A;23;59;0
 # /dev/sdh;CT1000MX500SSD1;2152E5F6C89D;31;54;0
 
-from .agent_based_api.v2 import check_levels, Metric, register, Result, Service, State
+from cmk.agent_based.v2 import AgentSection, CheckPlugin, Service, Result, State, Metric, check_levels
 
 # parse raw data from agent on host into a dict
 def parse_disk_wearout(string_table):
